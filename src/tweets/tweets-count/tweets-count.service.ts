@@ -16,15 +16,17 @@ export class TweetsCountService {
 
   @Interval(5000)
   async countTweets() {
+    console.log('procurando tweets');
     let offset = await this.cacheManager.get<number>('tweet-offset');
     offset = offset === undefined ? 0 : offset;
+
     const tweets = await this.tweetModel.findAll({
-      offset: 0,
+      offset,
       limit: this.limit,
     });
 
     if (tweets.length === this.limit) {
-      this.cacheManager.set('tweet-offset', offset + this.limit);
+      this.cacheManager.set('tweet-offset', offset + this.limit, 1 * 10 * 60);
       console.log(`achou + ${this.limit} tweets`);
     }
   }
